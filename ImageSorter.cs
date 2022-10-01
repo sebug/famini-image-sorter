@@ -21,6 +21,31 @@ public record ImageSorter(string AccountName, string AccountKey) {
 
         var orderedContentString = orderedContentDownloadResult.Content.ToString();
 
-        Console.WriteLine(orderedContentString);
+        List<string> imageFiles = new List<string>();
+        using (var sr = new StringReader(orderedContentString))
+        {
+            string? line = sr.ReadLine();
+            while (line != null) {
+                if (!String.IsNullOrEmpty(line)) {
+                    imageFiles.Add(line);
+                }
+                line = sr.ReadLine();
+            }
+        }
+
+        if (!Directory.Exists("output_images"))
+        {
+            Directory.CreateDirectory("output_images");
+        }
+
+        int i = 0;
+        foreach (var imageFile in imageFiles)
+        {
+            var imageClient = photosClient.GetBlobClient(imageFile);
+            var imageContent = await imageClient.DownloadContentAsync();
+            var imageBytes = imageContent.Value.Content.ToArray();
+            File.WriteAllBytes(Path.Combine("output_images", i.ToString("000") + ". " + imageFile), imageBytes);
+            i += 1;
+        }
     }
 }
