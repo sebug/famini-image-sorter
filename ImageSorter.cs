@@ -13,14 +13,14 @@ public record ImageSorter(string AccountName, string AccountKey) {
 
         var photosClient = blobServiceClient.GetBlobContainerClient("photos");
 
-        var metaFiles = metaClient.GetBlobsAsync();
-        
-        await foreach (var metaPage in metaFiles.AsPages())
-        {
-            foreach (var item in metaPage.Values)
-            {
-                Console.WriteLine(item.Name);
-            }
-        }
+        var imagesSortedBlobClient = metaClient.GetBlobClient("images_ordered.txt");
+
+        var orderedContent = await imagesSortedBlobClient.DownloadContentAsync();
+
+        var orderedContentDownloadResult = orderedContent.Value;
+
+        var orderedContentString = orderedContentDownloadResult.Content.ToString();
+
+        Console.WriteLine(orderedContentString);
     }
 }
