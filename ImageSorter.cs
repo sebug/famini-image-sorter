@@ -9,8 +9,18 @@ public record ImageSorter(string AccountName, string AccountKey) {
 
         var blobContainers = blobServiceClient.GetBlobContainers();
 
-        foreach (var blobContainer in blobContainers) {
-            await Console.Out.WriteLineAsync(blobContainer.Name);
+        var metaClient = blobServiceClient.GetBlobContainerClient("meta");
+
+        var photosClient = blobServiceClient.GetBlobContainerClient("photos");
+
+        var metaFiles = metaClient.GetBlobsAsync();
+        
+        await foreach (var metaPage in metaFiles.AsPages())
+        {
+            foreach (var item in metaPage.Values)
+            {
+                Console.WriteLine(item.Name);
+            }
         }
     }
 }
